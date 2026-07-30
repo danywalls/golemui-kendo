@@ -1,21 +1,21 @@
-# @golemui/kendo 🚀
+# @danywalls/golemui-kendo 🚀
 
-[![npm version](https://img.shields.io/npm/v/@golemui/kendo.svg)](https://www.npmjs.com/package/@golemui/kendo)
+[![npm version](https://img.shields.io/npm/v/@danywalls/golemui-kendo.svg)](https://www.npmjs.com/package/@danywalls/golemui-kendo)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Angular CLI](https://img.shields.io/badge/Angular-v20+-dd0031.svg)](https://angular.dev)
 
 Community-driven **Progress Kendo UI** integration for [GolemUI](https://golemui.com/) in Angular applications.
 
-[GolemUI](https://golemui.com/) is a powerful schema-driven UI engine for building dynamic forms and user interfaces. `@golemui/kendo` provides ready-to-use adapter components for Kendo UI widgets, allowing developers to use Kendo UI components natively within GolemUI forms (`<gui-form>`).
+[GolemUI](https://golemui.com/) is a powerful schema-driven UI engine for building dynamic forms and user interfaces. `@danywalls/golemui-kendo` provides ready-to-use adapter components for Kendo UI widgets, allowing developers to use Kendo UI components natively within GolemUI forms (`<gui-form>`).
 
 ---
 
 ## 📦 Quick Start
 
-Add `@golemui/kendo` to your existing Angular project:
+Add `@danywalls/golemui-kendo` to your existing Angular project:
 
 ```bash
-ng add @golemui/kendo
+ng add @danywalls/golemui-kendo
 ```
 
 ### What this command does automatically:
@@ -40,10 +40,10 @@ You can pass options to customize the installation:
 
 ```bash
 # Skip generating the example component
-ng add @golemui/kendo --skipExample
+ng add @danywalls/golemui-kendo --skipExample
 
 # Customize widget output directory
-ng add @golemui/kendo --widgetsPath src/app/shared/kendo-widgets
+ng add @danywalls/golemui-kendo --widgetsPath src/app/shared/kendo-widgets
 ```
 
 ---

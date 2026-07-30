@@ -1,5 +1,5 @@
 {
-  "name": "@golemui/kendo",
+  "name": "@danywalls/golemui-kendo",
   "version": "0.0.1",
   "description": "GolemUI + Progress Kendo UI integration for Angular",
   "main": "./dist/ng-add/index.js",
