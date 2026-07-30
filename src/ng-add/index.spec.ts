@@ -7,7 +7,7 @@ const collectionPath = path.join(__dirname, '../../collection.json');
 
 describe('ng-add schematic', () => {
   let appTree: UnitTestTree;
-  const runner = new SchematicTestRunner('@golemui/kendo', collectionPath);
+  const runner = new SchematicTestRunner('@danywalls/golemui-kendo', collectionPath);
 
   beforeEach(() => {
     const hostTree = new HostTree();
