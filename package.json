@@ -18,10 +18,10 @@
   "homepage": "https://golemui.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/golemui/kendo.git"
+    "url": "git+https://github.com/danywalls/golemui-kendo-schematics.git"
   },
   "bugs": {
-    "url": "https://github.com/golemui/kendo/issues"
+    "url": "https://github.com/danywalls/golemui-kendo-schematics/issues"
   },
   "author": "Dany Paredes (https://github.com/danywalls)",
   "license": "MIT",
