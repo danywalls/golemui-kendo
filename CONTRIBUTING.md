@@ -10,8 +10,8 @@ This project is part of the [GolemUI](https://golemui.com/) ecosystem, designed 
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/danywalls/golemui-kendo-schematics.git
-   cd golemui-kendo-schematics
+   git clone https://github.com/danywalls/golemui-kendo.git
+   cd golemui-kendo
    ```
 
 2. **Install dependencies**:
@@ -36,7 +36,7 @@ This project is part of the [GolemUI](https://golemui.com/) ecosystem, designed 
 
 You can link and test your local changes in an Angular application:
 
-1. In the `golemui-kendo-schematics` directory, build and link:
+1. In the `golemui-kendo` directory, build and link:
    ```bash
    npm run build
    npm link

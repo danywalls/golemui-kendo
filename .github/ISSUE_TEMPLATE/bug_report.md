@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help us improve @golemui/kendo
+about: Create a report to help us improve @danywalls/golemui-kendo
 title: ''
 labels: 'bug'
 assignees: ''
@@ -21,7 +21,7 @@ A clear and concise description of what you expected to happen.
  - Angular Version:
  - Node Version:
  - Package Manager (npm/yarn/pnpm):
- - `@golemui/kendo` Version:
+ - `@danywalls/golemui-kendo` Version:
 
 **Additional context**
 Add any other context or logs about the problem here.
