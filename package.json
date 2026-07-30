@@ -1,0 +1,58 @@
+{
+  "name": "@golemui/kendo",
+  "version": "0.0.1",
+  "description": "GolemUI + Progress Kendo UI integration for Angular",
+  "main": "./dist/ng-add/index.js",
+  "schematics": "./collection.json",
+  "keywords": [
+    "angular",
+    "angular-cli",
+    "schematics",
+    "ng-add",
+    "golemui",
+    "kendo-ui",
+    "progress-kendo",
+    "forms",
+    "ui-components"
+  ],
+  "homepage": "https://golemui.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/golemui/kendo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/golemui/kendo/issues"
+  },
+  "author": "Dany Paredes (https://github.com/danywalls)",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "collection.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "ng-add": {
+    "save": "devDependencies"
+  },
+  "peerDependencies": {
+    "@angular/cli": "^20.0.0",
+    "@schematics/angular": "^20.0.0"
+  },
+  "devDependencies": {
+    "@angular-devkit/core": "^20.0.0",
+    "@angular-devkit/schematics": "^20.0.0",
+    "@angular/cli": "^20.3.32",
+    "@schematics/angular": "^20.3.32",
+    "@types/node": "^22.0.0",
+    "typescript": "~5.9.0",
+    "vitest": "^3.0.0"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.json && cp -r src/ng-add/files dist/ng-add/",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build && npm test"
+  }
+}

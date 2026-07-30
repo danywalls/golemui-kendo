@@ -1,0 +1,10 @@
+{
+  "$schema": "./node_modules/@angular-devkit/schematics/collection-schema.json",
+  "schematics": {
+    "ng-add": {
+      "description": "Adds GolemUI + Kendo UI to your project",
+      "factory": "./dist/ng-add/index#ngAdd",
+      "schema": "./src/ng-add/schema.json"
+    }
+  }
+}

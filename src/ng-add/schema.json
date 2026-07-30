@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "golemui-kendo-ng-add",
+  "title": "GolemUI + Kendo ng add",
+  "type": "object",
+  "properties": {
+    "project": {
+      "type": "string",
+      "description": "Project name in angular.json",
+      "$default": { "$source": "projectName" }
+    },
+    "skipExample": {
+      "type": "boolean",
+      "default": false,
+      "description": "Skip generation of example form component",
+      "x-prompt": "Would you like to generate an example form to see how GolemUI + Kendo works together?"
+    },
+    "widgetsPath": {
+      "type": "string",
+      "default": "src/app/kendo-widgets",
+      "description": "Path where Kendo widget files will be generated"
+    }
+  },
+  "required": []
+}

@@ -1,0 +1,59 @@
+import { Component } from '@angular/core';
+import type { FormSubmitEvent } from '@golemui/core';
+import { FormComponent } from '@golemui/gui-angular';
+import type { GuiFormInitConfig } from '@golemui/gui-shared';
+import { gui } from '@golemui/gui-shared';
+import { kendoWidgetLoaders } from '<%= widgetsImportPath %>';
+
+const exampleFormDef = [
+  gui.inputs.custom('kendo-textbox', 'email', {
+    label: 'Email Address',
+    props: { placeholder: 'you@example.com', clearButton: true },
+    validator: { type: 'string', required: true, format: 'email' },
+  }),
+  gui.inputs.custom('kendo-passwordbox', 'password', {
+    label: 'Password',
+    props: { hint: 'At least 8 characters' },
+    validator: { type: 'string', required: true, minLength: 8 },
+  }),
+  gui.inputs.custom('kendo-numerictextbox', 'age', {
+    label: 'Age',
+    props: { min: 18, max: 120, step: 1 },
+    validator: { type: 'number', required: true },
+  }),
+  gui.inputs.custom('kendo-textarea', 'bio', {
+    label: 'Bio',
+    props: { placeholder: 'Tell us about yourself...', rows: 3 },
+  }),
+  gui.inputs.custom('kendo-switch', 'newsletter', {
+    label: 'Subscribe to newsletter',
+    props: { onLabel: 'YES', offLabel: 'NO' },
+  }),
+  gui.inputs.custom('kendo-checkbox', 'rememberMe', {
+    label: 'Remember me on this device',
+  }),
+  gui.actions.custom('kendo-button', {
+    label: 'Submit Form',
+    actionType: 'submit',
+    disabled: { when: '$formIsInvalid' },
+  }),
+];
+
+@Component({
+  selector: 'app-example-form',
+  imports: [FormComponent],
+  template: `
+    <h2>GolemUI + Kendo UI Example Form</h2>
+    <gui-form [config]="config" (formSubmit)="onFormSubmit($event)"></gui-form>
+  `,
+})
+export class ExampleFormComponent {
+  protected config: GuiFormInitConfig = {
+    formDef: exampleFormDef,
+    formConfig: { widgetLoaders: kendoWidgetLoaders },
+  };
+
+  protected onFormSubmit(event: FormSubmitEvent) {
+    console.log('Form submitted:', event.data);
+  }
+}
