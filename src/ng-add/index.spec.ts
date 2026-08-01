@@ -7,7 +7,7 @@ const collectionPath = path.join(__dirname, '../../collection.json');
 
 describe('ng-add schematic', () => {
   let appTree: UnitTestTree;
-  const runner = new SchematicTestRunner('@danywalls/golemui-kendo', collectionPath);
+  const runner = new SchematicTestRunner('golemui-kendo', collectionPath);
 
   beforeEach(() => {
     const hostTree = new HostTree();
@@ -40,6 +40,9 @@ describe('ng-add schematic', () => {
     appTree.create('/package.json', JSON.stringify({
       name: 'test-app',
       version: '0.0.0',
+      dependencies: {
+        '@angular/core': '^22.1.0',
+      },
     }, null, 2));
   });
 
@@ -101,5 +104,68 @@ describe('ng-add schematic', () => {
     expect(tree.exists('/src/custom-widgets/kendo-textinput.component.ts')).toBe(true);
     const exampleFileContent = tree.readContent('/src/app/example/example-form.component.ts');
     expect(exampleFileContent).toContain("import { kendoWidgetLoaders } from '../../custom-widgets/kendo-widget-loaders';");
+  });
+
+  it('should add @angular/localize dependency matching @angular/core version', async () => {
+    const tree = await runner.runSchematic('ng-add', {}, appTree);
+    const packageJson = JSON.parse(tree.readContent('/package.json'));
+
+    expect(packageJson.dependencies['@angular/localize']).toBe('^22.1.0');
+  });
+
+  it('should add @angular/localize/init to build polyfills', async () => {
+    const tree = await runner.runSchematic('ng-add', {}, appTree);
+    const content = JSON.parse(tree.readContent('/angular.json'));
+    const project = content.projects['test-app'];
+    const polyfills = (project.architect?.build?.options?.polyfills ?? project.targets?.build?.options?.polyfills) as string[];
+
+    expect(polyfills).toContain('@angular/localize/init');
+  });
+
+  it('should add @angular/localize/init to static polyfills when polyfills is an object', async () => {
+    appTree.overwrite('/angular.json', JSON.stringify({
+      $schema: './node_modules/@angular/cli/lib/config/schema.json',
+      version: 1,
+      newProjectRoot: 'projects',
+      projects: {
+        'test-app': {
+          projectType: 'application',
+          root: '',
+          sourceRoot: 'src',
+          prefix: 'app',
+          architect: {
+            build: {
+              builder: '@angular/build:application',
+              options: {
+                browser: 'src/main.ts',
+                polyfills: { static: ['zone.js'], dynamic: [] },
+                styles: ['src/styles.scss'],
+              },
+            },
+          },
+        },
+      },
+    }, null, 2));
+
+    const tree = await runner.runSchematic('ng-add', {}, appTree);
+    const content = JSON.parse(tree.readContent('/angular.json'));
+    const project = content.projects['test-app'];
+    const polyfills = (project.architect?.build?.options?.polyfills ?? project.targets?.build?.options?.polyfills) as { static: string[] };
+
+    expect(polyfills.static).toContain('@angular/localize/init');
+  });
+
+  it('should add @progress/kendo-licensing when kendoLicense is true', async () => {
+    const tree = await runner.runSchematic('ng-add', { kendoLicense: true }, appTree);
+    const packageJson = JSON.parse(tree.readContent('/package.json'));
+
+    expect(packageJson.dependencies['@progress/kendo-licensing']).toBe('^1.11.2');
+  });
+
+  it('should not add @progress/kendo-licensing when kendoLicense is false', async () => {
+    const tree = await runner.runSchematic('ng-add', { kendoLicense: false }, appTree);
+    const packageJson = JSON.parse(tree.readContent('/package.json'));
+
+    expect(packageJson.dependencies['@progress/kendo-licensing']).toBeUndefined();
   });
 });

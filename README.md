@@ -1,21 +1,21 @@
-# @danywalls/golemui-kendo 🚀
+# golemui-kendo 🚀
 
-[![npm version](https://img.shields.io/npm/v/@danywalls/golemui-kendo.svg)](https://www.npmjs.com/package/@danywalls/golemui-kendo)
+[![npm version](https://img.shields.io/npm/v/golemui-kendo.svg)](https://www.npmjs.com/package/golemui-kendo)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Angular CLI](https://img.shields.io/badge/Angular-v20+-dd0031.svg)](https://angular.dev)
 
 Community-driven **Progress Kendo UI** integration for [GolemUI](https://golemui.com/) in Angular applications.
 
-[GolemUI](https://golemui.com/) is a powerful schema-driven UI engine for building dynamic forms and user interfaces. `@danywalls/golemui-kendo` provides ready-to-use adapter components for Kendo UI widgets, allowing developers to use Kendo UI components natively within GolemUI forms (`<gui-form>`).
+[GolemUI](https://golemui.com/) is a powerful schema-driven UI engine for building dynamic forms and user interfaces. `golemui-kendo` provides ready-to-use adapter components for Kendo UI widgets, allowing developers to use Kendo UI components natively within GolemUI forms (`<gui-form>`).
 
 ---
 
 ## 📦 Quick Start
 
-Add `@danywalls/golemui-kendo` to your existing Angular project:
+Add `golemui-kendo` to your existing Angular project:
 
 ```bash
-ng add @danywalls/golemui-kendo
+ng add golemui-kendo
 ```
 
 ### What this command does automatically:
@@ -35,16 +35,30 @@ You can pass options to customize the installation:
 | `--project` | `string` | First project in `angular.json` | Target Angular project name |
 | `--skipExample` | `boolean` | `false` | Skip generation of the example form component |
 | `--widgetsPath` | `string` | `<sourceRoot>/app/kendo-widgets` | Directory path where Kendo widget adapters will be generated |
+| `--kendoLicense` | `boolean` | `false` | Install `@progress/kendo-licensing` and activate your Kendo UI for Angular (Telerik) license |
 
 ### Examples
 
 ```bash
 # Skip generating the example component
-ng add @danywalls/golemui-kendo --skipExample
+ng add golemui-kendo --skipExample
 
 # Customize widget output directory
-ng add @danywalls/golemui-kendo --widgetsPath src/app/shared/kendo-widgets
+ng add golemui-kendo --widgetsPath src/app/shared/kendo-widgets
+
+# Install and activate a Kendo UI for Angular (Telerik) license
+ng add golemui-kendo --kendoLicense
 ```
+
+### What this command does automatically:
+
+1. 📥 **Installs Dependencies**: Adds `@golemui/angular`, `@golemui/core`, `@golemui/gui-angular`, `@golemui/gui-shared`, and `@progress/kendo-angular-*` packages to your `package.json`.
+2. 🌍 **Configures Localization**: Adds `@angular/localize` (matching your Angular version) and registers `@angular/localize/init` in your `polyfills`, required by the `kendo-textbox`/`kendo-passwordbox` widgets at runtime.
+3. 🎨 **Configures Styles**: Includes `@golemui/gui-components/index.css` and `@progress/kendo-theme-default/dist/all.css` in your `angular.json`.
+4. ⚙️ **Generates Kendo Widgets**: Creates Kendo UI widget adapter components (`kendo-button`, `kendo-checkbox`, `kendo-textinput`) and the `kendoWidgetLoaders` mapping in your project.
+5. 📝 **Generates Example Form** *(Optional)*: Creates an example component demonstrating GolemUI + Kendo UI integration.
+
+> **License note**: Kendo UI for Angular is commercial software. If you answer **yes** to the `kendoLicense` prompt, the schematic installs `@progress/kendo-licensing` and tries to run `npx kendo-ui-license refresh && npx kendo-ui-license activate` (a browser window opens to sign in with your Telerik account). If activation can't run, `ng add` still completes and prints the manual commands. Without a license the app still renders, but you should not use Kendo widgets in production.
 
 ---
 

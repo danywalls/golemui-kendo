@@ -19,6 +19,12 @@
       "type": "string",
       "default": "src/app/kendo-widgets",
       "description": "Path where Kendo widget files will be generated"
+    },
+    "kendoLicense": {
+      "type": "boolean",
+      "default": false,
+      "description": "Install @progress/kendo-licensing and activate your Kendo UI for Angular (Telerik) license",
+      "x-prompt": "Do you have an active Kendo UI for Angular subscription (Telerik license)?"
     }
   },
   "required": []

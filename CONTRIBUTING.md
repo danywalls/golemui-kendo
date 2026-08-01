@@ -1,6 +1,6 @@
-# Contributing to @danywalls/golemui-kendo
+# Contributing to golemui-kendo
 
-Thank you for your interest in contributing to `@danywalls/golemui-kendo`!
+Thank you for your interest in contributing to `golemui-kendo`!
 
 This project is part of the [GolemUI](https://golemui.com/) ecosystem, designed to provide seamless integration with Progress Kendo UI for Angular applications.
 
@@ -44,8 +44,8 @@ You can link and test your local changes in an Angular application:
 
 2. In your sample Angular project directory:
    ```bash
-   npm link @danywalls/golemui-kendo
-   ng add @danywalls/golemui-kendo
+   npm link golemui-kendo
+   ng add golemui-kendo
    ```
 
 ---
