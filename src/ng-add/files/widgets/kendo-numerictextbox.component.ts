@@ -42,12 +42,12 @@ interface KendoNumericInputProps {
     }
     <kendo-numerictextbox
       [focusableId]="widget.uid"
-      [value]="templateData.value ?? null"
+      [value]="numericValue"
       [placeholder]="templateData.placeholder ?? ''"
       [disabled]="templateData.disabled ?? false"
       [readonly]="templateData.readonly ?? false"
-      [min]="templateData.min ?? null"
-      [max]="templateData.max ?? null"
+      [min]="numericMin"
+      [max]="numericMax"
       [step]="templateData.step ?? 1"
       [format]="templateData.format ?? 'n0'"
       [spinners]="templateData.spinners ?? true"
@@ -64,6 +64,18 @@ export class KendoNumericInputComponent implements OnInit, OnDestroy, WithWidget
 
   protected readonly adapter: InputWidgetAdapter<number, KendoNumericInputProps> =
     inject(InputWidgetAdapter);
+
+  protected get numericValue(): number {
+    return this.adapter.templateData().value as number;
+  }
+
+  protected get numericMin(): number {
+    return this.adapter.templateData().min as number;
+  }
+
+  protected get numericMax(): number {
+    return this.adapter.templateData().max as number;
+  }
 
   ngOnInit(): void {
     this.adapter.init(this.widget);

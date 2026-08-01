@@ -168,4 +168,17 @@ describe('ng-add schematic', () => {
 
     expect(packageJson.dependencies['@progress/kendo-licensing']).toBeUndefined();
   });
+
+  it('should generate numerictextbox widget without null bindings (Kendo v24 non-nullable number inputs)', async () => {
+    const tree = await runner.runSchematic('ng-add', { skipExample: true }, appTree);
+    const content = tree.readContent('/src/app/kendo-widgets/kendo-numerictextbox.component.ts');
+
+    expect(content).not.toContain('?? null');
+    expect(content).toContain('[value]="numericValue"');
+    expect(content).toContain('[min]="numericMin"');
+    expect(content).toContain('[max]="numericMax"');
+    expect(content).toContain('protected get numericValue(): number');
+    expect(content).toContain('protected get numericMin(): number');
+    expect(content).toContain('protected get numericMax(): number');
+  });
 });

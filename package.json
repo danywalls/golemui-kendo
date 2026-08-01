@@ -1,6 +1,6 @@
 {
   "name": "golemui-kendo",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "GolemUI + Progress Kendo UI integration for Angular",
   "main": "./dist/ng-add/index.js",
   "schematics": "./collection.json",
