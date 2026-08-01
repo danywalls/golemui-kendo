@@ -38,8 +38,8 @@
     "save": "devDependencies"
   },
   "peerDependencies": {
-    "@angular/cli": "^20.0.0",
-    "@schematics/angular": "^20.0.0"
+    "@angular/cli": "^20.0.0 || ^21.0.0 || ^22.0.0",
+    "@schematics/angular": "^20.0.0 || ^21.0.0 || ^22.0.0"
   },
   "devDependencies": {
     "@angular-devkit/core": "^20.0.0",
@@ -51,7 +51,7 @@
     "vitest": "^3.0.0"
   },
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.json && cp -r src/ng-add/files dist/ng-add/",
+    "build": "rm -rf dist && tsc -p tsconfig.json && cp -r src/ng-add/files dist/ng-add/ && cp src/ng-add/schema.json dist/ng-add/",
     "test": "vitest run",
     "prepublishOnly": "npm run build && npm test"
   }

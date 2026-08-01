@@ -4,7 +4,7 @@
     "ng-add": {
       "description": "Adds GolemUI + Kendo UI to your project",
       "factory": "./dist/ng-add/index#ngAdd",
-      "schema": "./src/ng-add/schema.json"
+      "schema": "./dist/ng-add/schema.json"
     }
   }
 }
