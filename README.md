@@ -4,9 +4,19 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Angular CLI](https://img.shields.io/badge/Angular-v20+-dd0031.svg)](https://angular.dev)
 
-Community-driven **Progress Kendo UI** integration for [GolemUI](https://golemui.com/) in Angular applications.
+Community-driven **Progress Kendo UI** widget set for [GolemUI](https://golemui.com/) in Angular applications.
 
-[GolemUI](https://golemui.com/) is a powerful schema-driven UI engine for building dynamic forms and user interfaces. `golemui-kendo` provides ready-to-use adapter components for Kendo UI widgets, allowing developers to use Kendo UI components natively within GolemUI forms (`<gui-form>`).
+[GolemUI](https://golemui.com/) is a powerful schema-driven UI engine for building dynamic forms and user interfaces. Since GolemUI 1.2.0, third-party widget sets can provide their **own authoring API** through [`@golemui/dx`](https://golemui.com/dx/extending/widget-sets/overview/). `golemui-kendo` uses exactly that: it ships a typed `kendo.*` authoring namespace with its own selectors, plus the Angular components that render it — generated into your app by `ng add`. No `gui.*` fallback, no `gui.inputs.custom(...)` indirection.
+
+```typescript
+import { kendo } from 'golemui-kendo';
+
+const form = [
+  kendo.inputs.textBox('email', { validator: { required: true, format: 'email' } }),
+  kendo.inputs.passwordBox('password', { validator: { required: true, minLength: 8 } }),
+  kendo.actions.submitButton({ label: 'Sign in', disabled: { when: '$formIsInvalid' } }),
+];
+```
 
 ---
 
@@ -19,10 +29,26 @@ ng add golemui-kendo
 ```
 
 ### What this command does automatically:
-1. 📥 **Installs Dependencies**: Adds `@golemui/angular`, `@golemui/core`, `@golemui/gui-angular`, `@golemui/gui-shared`, and `@progress/kendo-angular-*` packages to your `package.json`.
-2. 🎨 **Configures Styles**: Includes `@golemui/gui-components/index.css` and `@progress/kendo-theme-default/dist/all.css` in your `angular.json`.
-3. ⚙️ **Generates Kendo Widgets**: Creates Kendo UI widget adapter components (`kendo-button`, `kendo-checkbox`, `kendo-textinput`) and the `kendoWidgetLoaders` mapping in your project.
-4. 📝 **Generates Example Form** *(Optional)*: Creates an example component demonstrating GolemUI + Kendo UI integration.
+
+1. 📥 **Installs Dependencies**: Adds `@golemui/angular`, `@golemui/core`, `@golemui/dx`, `@golemui/gui-validators` (all `^1.2.0`) and the `@progress/kendo-angular-*` packages to your `package.json`.
+2. 🌍 **Configures Localization**: Adds `@angular/localize` and `@angular/animations` (pinned to your Angular version) and registers `@angular/localize/init` in your `polyfills`, required by the Kendo widgets at runtime.
+3. 🎨 **Configures Styles**: Includes `@progress/kendo-theme-default/dist/all.css` in your `angular.json`.
+4. ⚙️ **Generates Kendo Widgets**: Creates the widget components (`kendo-textinput`, `kendo-dropdownlist`, `kendo-datepicker`, ...), the `<kendo-form>` host, and the `kendoWidgetLoaders` mapping in your project.
+5. 📝 **Generates Example Form** *(Optional)*: Creates an example component demonstrating the `kendo.*` authoring API.
+
+### One manual step
+
+Kendo's popup-based widgets (`dropDownList`, `datePicker`) need Angular animations, so add `provideAnimations()` to your application providers:
+
+```typescript
+import { provideAnimations } from '@angular/platform-browser/animations';
+
+export const appConfig: ApplicationConfig = {
+  providers: [provideAnimations(), /* ... */],
+};
+```
+
+Without it, those two widgets report "widget could not be loaded" while everything else renders normally.
 
 ---
 
@@ -34,7 +60,7 @@ You can pass options to customize the installation:
 | :--- | :--- | :--- | :--- |
 | `--project` | `string` | First project in `angular.json` | Target Angular project name |
 | `--skipExample` | `boolean` | `false` | Skip generation of the example form component |
-| `--widgetsPath` | `string` | `<sourceRoot>/app/kendo-widgets` | Directory path where Kendo widget adapters will be generated |
+| `--widgetsPath` | `string` | `<sourceRoot>/app/kendo-widgets` | Directory path where Kendo widget components will be generated |
 | `--kendoLicense` | `boolean` | `false` | Install `@progress/kendo-licensing` and activate your Kendo UI for Angular (Telerik) license |
 
 ### Examples
@@ -50,68 +76,80 @@ ng add golemui-kendo --widgetsPath src/app/shared/kendo-widgets
 ng add golemui-kendo --kendoLicense
 ```
 
-### What this command does automatically:
-
-1. 📥 **Installs Dependencies**: Adds `@golemui/angular`, `@golemui/core`, `@golemui/gui-angular`, `@golemui/gui-shared`, and `@progress/kendo-angular-*` packages to your `package.json`.
-2. 🌍 **Configures Localization**: Adds `@angular/localize` (matching your Angular version) and registers `@angular/localize/init` in your `polyfills`, required by the `kendo-textbox`/`kendo-passwordbox` widgets at runtime.
-3. 🎨 **Configures Styles**: Includes `@golemui/gui-components/index.css` and `@progress/kendo-theme-default/dist/all.css` in your `angular.json`.
-4. ⚙️ **Generates Kendo Widgets**: Creates Kendo UI widget adapter components (`kendo-button`, `kendo-checkbox`, `kendo-textinput`) and the `kendoWidgetLoaders` mapping in your project.
-5. 📝 **Generates Example Form** *(Optional)*: Creates an example component demonstrating GolemUI + Kendo UI integration.
-
 > **License note**: Kendo UI for Angular is commercial software. If you answer **yes** to the `kendoLicense` prompt, the schematic installs `@progress/kendo-licensing` and tries to run `npx kendo-ui-license refresh && npx kendo-ui-license activate` (a browser window opens to sign in with your Telerik account). If activation can't run, `ng add` still completes and prints the manual commands. Without a license the app still renders, but you should not use Kendo widgets in production.
 
 ---
 
 ## 💡 Usage Example
 
-Once installed, use `kendoWidgetLoaders` with GolemUI's `<gui-form>`:
+Once installed, author forms with the `kendo.*` namespace and render them with the generated `<kendo-form>`:
 
 ```typescript
 import { Component } from '@angular/core';
-import { FormComponent } from '@golemui/gui-angular';
-import type { GuiFormInitConfig } from '@golemui/gui-shared';
-import { gui } from '@golemui/gui-shared';
-import { kendoWidgetLoaders } from './kendo-widgets/kendo-widget-loaders';
+import type { FormSubmitEvent } from '@golemui/core';
+import { kendo, type KendoFormInitConfig } from 'golemui-kendo';
+import { KendoFormComponent } from './kendo-widgets/kendo-form.component';
 
 const loginFormDef = [
-  gui.inputs.custom('kendo-textbox', 'email', {
+  kendo.inputs.textBox('email', {
     label: 'Email Address',
-    props: { placeholder: 'user@example.com', clearButton: true },
-    validator: { type: 'string', required: true, format: 'email' },
+    placeholder: 'user@example.com',
+    clearButton: true,
+    validator: { required: true, format: 'email' },
   }),
-  gui.inputs.custom('kendo-passwordbox', 'password', {
-    label: 'Password',
-    props: { hint: 'At least 8 characters' },
-    validator: { type: 'string', required: true, minLength: 8 },
+  kendo.inputs.passwordBox('password', {
+    hint: 'At least 8 characters',
+    validator: { required: true, minLength: 8 },
   }),
-  gui.inputs.custom('kendo-checkbox', 'rememberMe', {
-    label: 'Remember Me',
-  }),
-  gui.actions.custom('kendo-button', {
-    label: 'Sign In',
-    actionType: 'submit',
-    disabled: { when: '$formIsInvalid' },
-  }),
+  kendo.inputs.checkbox('rememberMe', { label: 'Remember Me' }),
+  kendo.actions.submitButton({ label: 'Sign In', disabled: { when: '$formIsInvalid' } }),
 ];
+
+// Selectors decorate widgets after the fact: by type, tag, or uid.
+const loginSelectors = [kendo.selectors.inputs({ override: { kuiSize: 'medium' } })];
 
 @Component({
   selector: 'app-login-form',
-  imports: [FormComponent],
+  imports: [KendoFormComponent],
   template: `
     <h2>Sign In</h2>
-    <gui-form [config]="config" (formSubmit)="onFormSubmit($event)"></gui-form>
+    <kendo-form [config]="config" (formSubmit)="onFormSubmit($event)"></kendo-form>
   `,
 })
 export class LoginFormComponent {
-  protected config: GuiFormInitConfig = {
+  protected config: KendoFormInitConfig = {
     formDef: loginFormDef,
-    formConfig: { widgetLoaders: kendoWidgetLoaders },
+    formSelectors: loginSelectors,
   };
 
-  protected onFormSubmit(event: any) {
+  protected onFormSubmit(event: FormSubmitEvent) {
     console.log('Submitted data:', event.data);
   }
 }
+```
+
+### The widget catalog
+
+| Group | Builders |
+| :--- | :--- |
+| `kendo.inputs` | `textBox`, `passwordBox`, `textArea`, `numericTextBox`, `checkbox`, `switch`, `radioGroup`, `dropDownList`, `datePicker`, `repeater` |
+| `kendo.actions` | `button`, `submitButton` |
+| `kendo.displays` | `render` (mount any Angular component) |
+| `kendo.layouts` | `flex`, `row`, `column` |
+| `kendo.selectors` | one method per widget type plus `inputs`, `actions`, `displays`, `layouts` umbrellas and the `tag` / `tagsAnd` / `tagsOr` / `state` scopes |
+
+See [docs/architecture.md](docs/architecture.md) for how the set is wired together, and the [GolemUI widget set docs](https://golemui.com/dx/extending/widget-sets/overview/) for the underlying API.
+
+---
+
+## 🕹️ Demo
+
+The [demo/](demo/) app is a runnable showcase with seven pages (catalog, layouts, selectors, states, repeater, events, JSON):
+
+```bash
+npm install
+npm --prefix demo install
+npm run demo
 ```
 
 ---
@@ -120,11 +158,11 @@ export class LoginFormComponent {
 
 Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and submission process.
 
-To run tests locally using [Vitest](https://vitest.dev/):
-
 ```bash
-npm install
-npm test
+npm install          # installs GolemUI 1.2.0 from npm
+npm run build        # builds the library and the schematic
+npm run typecheck    # typechecks the library, its tests, and the schematic
+npm test             # rebuilds the schematic, then runs the vitest specs
 ```
 
 ---
@@ -133,6 +171,7 @@ npm test
 
 * 🌐 **GolemUI Website**: [https://golemui.com](https://golemui.com/)
 * 📦 **GolemUI Core Repository**: [https://github.com/golemui/golemui](https://github.com/golemui/golemui)
+* 🧩 **Widget Set Authoring Docs**: [https://golemui.com/dx/extending/widget-sets/overview/](https://golemui.com/dx/extending/widget-sets/overview/)
 * 🎨 **Progress Kendo UI for Angular**: [https://www.telerik.com/kendo-angular-ui](https://www.telerik.com/kendo-angular-ui)
 
 ---

@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "./dist/ng-add",
+    "rootDir": "src/ng-add"
+  },
+  "include": ["src/ng-add/**/*.ts"],
+  "exclude": ["node_modules", "src/ng-add/files/**/*", "src/ng-add/**/*.spec.ts"]
+}

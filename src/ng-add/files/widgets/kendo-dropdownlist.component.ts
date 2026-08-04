@@ -1,13 +1,13 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { InputWidgetAdapter } from '@golemui/angular';
 import type { InputWidget, WithWidget } from '@golemui/core';
-import type { KendoTextAreaProps } from 'golemui-kendo';
-import { TextAreaComponent } from '@progress/kendo-angular-inputs';
+import type { KendoDropDownListProps, KendoOption } from 'golemui-kendo';
+import { DropDownListComponent } from '@progress/kendo-angular-dropdowns';
 import { KendoFieldComponent } from './kendo-field.component';
 
 @Component({
-  selector: 'app-kendo-textarea',
-  imports: [TextAreaComponent, KendoFieldComponent],
+  selector: 'app-kendo-dropdownlist',
+  imports: [DropDownListComponent, KendoFieldComponent],
   providers: [InputWidgetAdapter],
   host: {
     class: 'kendo-widget',
@@ -24,34 +24,40 @@ import { KendoFieldComponent } from './kendo-field.component';
       [required]="!!templateData.validator?.required"
       [for]="widget.uid"
     >
-      <kendo-textarea
-        [focusableId]="widget.uid"
-        [value]="templateData.value ?? ''"
-        [placeholder]="templateData.placeholder ?? ''"
+      <kendo-dropdownlist
+        [id]="widget.uid"
+        [data]="templateData.options ?? []"
+        textField="text"
+        valueField="value"
+        [valuePrimitive]="true"
+        [value]="templateData.value"
+        [defaultItem]="defaultItem"
         [disabled]="templateData.disabled ?? false"
         [readonly]="templateData.readonly ?? false"
+        [filterable]="templateData.filterable ?? false"
         [size]="templateData.kuiSize ?? 'medium'"
         [rounded]="templateData.rounded ?? 'medium'"
         [fillMode]="templateData.fillMode ?? 'solid'"
-        [rows]="templateData.rows ?? 3"
-        [resizable]="templateData.resizable ?? 'vertical'"
-        [maxlength]="maxLength"
         (valueChange)="adapter.valueChanged($event)"
+        (filterChange)="adapter.filterChanged($event)"
         (blur)="adapter.onBlur()"
-      ></kendo-textarea>
+      ></kendo-dropdownlist>
     </app-kendo-field>
   `,
 })
-export class KendoTextAreaComponent implements OnInit, OnDestroy, WithWidget {
-  widget!: InputWidget<string>;
+export class KendoDropDownListComponent implements OnInit, OnDestroy, WithWidget {
+  widget!: InputWidget<unknown>;
 
-  protected readonly adapter: InputWidgetAdapter<string, KendoTextAreaProps> =
+  protected readonly adapter: InputWidgetAdapter<unknown, KendoDropDownListProps> =
     inject(InputWidgetAdapter);
 
-  // Kendo types maxlength as a non-nullable number but has no default, so an
-  // unset limit has to reach it as undefined rather than as a sentinel.
-  protected get maxLength(): number {
-    return this.adapter.templateData().maxlength as number;
+  /**
+   * Kendo's `defaultItem` has to match the data shape, so the author's plain
+   * placeholder string is wrapped into an option with an empty value.
+   */
+  protected get defaultItem(): KendoOption | undefined {
+    const text = this.adapter.templateData().defaultItem;
+    return text ? { text, value: null } : undefined;
   }
 
   ngOnInit(): void {

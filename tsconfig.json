@@ -1,18 +1,15 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "outDir": "./dist",
-    "rootDir": "src/",
-    "declaration": true,
-    "sourceMap": true,
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "experimentalDecorators": true,
+    "types": ["node", "vitest/globals"],
+    "paths": {
+      "golemui-kendo": ["./src/lib/index.ts"]
+    }
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "src/ng-add/files/**/*"]
+  "include": ["src/**/*.ts", "vitest.config.ts"],
+  "exclude": ["node_modules", "dist", "demo"]
 }

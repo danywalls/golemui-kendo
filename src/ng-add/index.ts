@@ -4,12 +4,21 @@ import { spawnSync } from 'child_process';
 import * as path from 'path';
 import type { Schema } from './schema';
 
+/**
+ * The GolemUI release the Kendo catalog is built against. It has to be one that
+ * exports the multi-implementation factories (`createImplementation` and
+ * `createSelectors`) from `@golemui/dx`.
+ */
+const GOLEMUI_VERSION = '^1.2.0';
+
 const KENDO_DEPENDENCIES: Record<string, string> = {
-  '@golemui/angular': '^1.0.0',
-  '@golemui/core': '^1.0.0',
-  '@golemui/gui-angular': '^1.0.0',
-  '@golemui/gui-shared': '^1.0.0',
+  '@golemui/angular': GOLEMUI_VERSION,
+  '@golemui/core': GOLEMUI_VERSION,
+  '@golemui/dx': GOLEMUI_VERSION,
+  '@golemui/gui-validators': GOLEMUI_VERSION,
   '@progress/kendo-angular-buttons': '^24.0.0',
+  '@progress/kendo-angular-dateinputs': '^24.0.0',
+  '@progress/kendo-angular-dropdowns': '^24.0.0',
   '@progress/kendo-angular-inputs': '^24.0.0',
   '@progress/kendo-theme-default': '^14.0.0',
 };
@@ -17,12 +26,9 @@ const KENDO_DEPENDENCIES: Record<string, string> = {
 const KENDO_LICENSING = '@progress/kendo-licensing';
 const KENDO_LICENSING_VERSION = '^1.11.2';
 const LOCALIZE_POLYFILL = '@angular/localize/init';
-const LOCALIZE_FALLBACK_VERSION = '^20.0.0 || ^21.0.0 || ^22.0.0';
+const ANGULAR_FALLBACK_VERSION = '^20.0.0 || ^21.0.0 || ^22.0.0';
 
-const KENDO_STYLES = [
-  '@golemui/gui-components/index.css',
-  '@progress/kendo-theme-default/dist/all.css',
-];
+const KENDO_STYLES = ['@progress/kendo-theme-default/dist/all.css'];
 
 function getAngularVersionString(tree: Tree): string | undefined {
   const packageJsonPath = '/package.json';
@@ -50,8 +56,18 @@ function addPackageJsonDependencies(tree: Tree, kendoLicense: boolean): void {
     }
   }
 
+  // Both are pinned to the app's own Angular version rather than left to peer
+  // resolution: npm otherwise picks a different patch of @angular/animations
+  // than the installed @angular/common, which fails to resolve.
+  const angularVersion = getAngularVersionString(tree) ?? ANGULAR_FALLBACK_VERSION;
+
   if (!packageJson.dependencies['@angular/localize']) {
-    packageJson.dependencies['@angular/localize'] = getAngularVersionString(tree) ?? LOCALIZE_FALLBACK_VERSION;
+    packageJson.dependencies['@angular/localize'] = angularVersion;
+  }
+
+  // Kendo's popup-based widgets (dropDownList, datePicker) inject AnimationBuilder.
+  if (!packageJson.dependencies['@angular/animations']) {
+    packageJson.dependencies['@angular/animations'] = angularVersion;
   }
 
   if (kendoLicense && !packageJson.dependencies[KENDO_LICENSING]) {
@@ -61,15 +77,19 @@ function addPackageJsonDependencies(tree: Tree, kendoLicense: boolean): void {
   tree.overwrite(packageJsonPath, JSON.stringify(packageJson, null, 2));
 }
 
-function addStyles(angularJson: Record<string, unknown>, projectName: string): void {
+function getBuildOptions(angularJson: Record<string, unknown>, projectName: string): Record<string, unknown> | undefined {
   const project = angularJson['projects'] as Record<string, Record<string, unknown>> | undefined;
-  if (!project?.[projectName]) return;
+  if (!project?.[projectName]) return undefined;
 
   const build = project[projectName]['architect'] as Record<string, unknown> | undefined
     ?? project[projectName]['targets'] as Record<string, unknown> | undefined;
-  if (!build) return;
+  if (!build) return undefined;
 
-  const options = (build['build'] as Record<string, unknown> | undefined)?.['options'] as Record<string, unknown> | undefined;
+  return (build['build'] as Record<string, unknown> | undefined)?.['options'] as Record<string, unknown> | undefined;
+}
+
+function addStyles(angularJson: Record<string, unknown>, projectName: string): void {
+  const options = getBuildOptions(angularJson, projectName);
   if (!options) return;
 
   const styles = (options['styles'] as string[]) ?? [];
@@ -83,14 +103,7 @@ function addStyles(angularJson: Record<string, unknown>, projectName: string): v
 }
 
 function addLocalizePolyfill(angularJson: Record<string, unknown>, projectName: string): void {
-  const project = angularJson['projects'] as Record<string, Record<string, unknown>> | undefined;
-  if (!project?.[projectName]) return;
-
-  const build = project[projectName]['architect'] as Record<string, unknown> | undefined
-    ?? project[projectName]['targets'] as Record<string, unknown> | undefined;
-  if (!build) return;
-
-  const options = (build['build'] as Record<string, unknown> | undefined)?.['options'] as Record<string, unknown> | undefined;
+  const options = getBuildOptions(angularJson, projectName);
   if (!options) return;
 
   const polyfills = options['polyfills'];
@@ -189,7 +202,7 @@ export function ngAdd(options: Schema): Rule {
     const rules: Rule[] = [mergeWith(widgetFiles)];
 
     if (!options.skipExample) {
-      let widgetsImportPath = path.relative(examplePath, path.join(widgetsPath, 'kendo-widget-loaders')).replace(/\\/g, '/');
+      let widgetsImportPath = path.relative(examplePath, widgetsPath).replace(/\\/g, '/');
       if (!widgetsImportPath.startsWith('.')) {
         widgetsImportPath = `./${widgetsImportPath}`;
       }
@@ -203,6 +216,18 @@ export function ngAdd(options: Schema): Rule {
       ]);
       rules.push(mergeWith(exampleFiles));
     }
+
+    context.logger.info('');
+    context.logger.info('One manual step is left. Kendo\'s popup-based widgets need Angular animations,');
+    context.logger.info('so add provideAnimations() to your application providers:');
+    context.logger.info('');
+    context.logger.info("  import { provideAnimations } from '@angular/platform-browser/animations';");
+    context.logger.info('');
+    context.logger.info('  export const appConfig: ApplicationConfig = {');
+    context.logger.info('    providers: [provideAnimations(), /* ... */],');
+    context.logger.info('  };');
+    context.logger.info('');
+    context.logger.info('Without it, dropDownList and datePicker report "widget could not be loaded".');
 
     return chain(rules);
   };

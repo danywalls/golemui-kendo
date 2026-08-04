@@ -1,41 +1,53 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { InputWidgetAdapter } from '@golemui/angular';
 import type { InputWidget, WithWidget } from '@golemui/core';
-import { ErrorComponent, SwitchComponent } from '@progress/kendo-angular-inputs';
-
-interface KendoSwitchProps {
-  onLabel?: string;
-  offLabel?: string;
-}
+import type { KendoSwitchProps } from 'golemui-kendo';
+import { SwitchComponent } from '@progress/kendo-angular-inputs';
+import { KendoFieldComponent } from './kendo-field.component';
 
 @Component({
   selector: 'app-kendo-switch',
-  imports: [SwitchComponent, ErrorComponent],
+  imports: [SwitchComponent, KendoFieldComponent],
   providers: [InputWidgetAdapter],
   host: {
-    class: 'kendo-widget gui-field',
+    class: 'kendo-widget',
     '[style.flex]': 'adapter.templateData().size',
   },
   template: `
     @let templateData = adapter.templateData();
-    @let errors = templateData.errors ?? [];
 
-    <div class="k-switch-wrap">
-      @if (templateData.label) {
-        <label class="k-switch-label" [for]="widget.uid">{{ templateData.label }}</label>
-      }
-      <kendo-switch
-        [focusableId]="widget.uid"
-        [checked]="templateData.value === true"
-        [disabled]="templateData.disabled ?? false"
-        [onLabel]="templateData.onLabel ?? 'ON'"
-        [offLabel]="templateData.offLabel ?? 'OFF'"
-        (valueChange)="adapter.valueChanged($event)"
-        (blur)="adapter.onBlur()"
-      ></kendo-switch>
-    </div>
-    @if (templateData.touched && errors.length) {
-      <kendo-formerror>{{ errors.join(' ') }}</kendo-formerror>
+    <app-kendo-field
+      [hint]="templateData.hint"
+      [errors]="templateData.errors ?? []"
+      [touched]="templateData.touched ?? false"
+    >
+      <span class="kendo-switch__inline">
+        <kendo-switch
+          [focusableId]="widget.uid"
+          [checked]="templateData.value === true"
+          [disabled]="templateData.disabled ?? false"
+          [size]="templateData.kuiSize ?? 'medium'"
+          [onLabel]="templateData.onLabel ?? 'ON'"
+          [offLabel]="templateData.offLabel ?? 'OFF'"
+          (valueChange)="adapter.valueChanged($event)"
+          (blur)="adapter.onBlur()"
+        ></kendo-switch>
+        @if (templateData.label) {
+          <label class="k-label" [attr.for]="widget.uid">
+            {{ templateData.label }}
+            @if (templateData.validator?.required) {
+              <span class="k-required">*</span>
+            }
+          </label>
+        }
+      </span>
+    </app-kendo-field>
+  `,
+  styles: `
+    .kendo-switch__inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
   `,
 })

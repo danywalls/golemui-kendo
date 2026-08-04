@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "outDir": "./dist/lib",
+    "rootDir": "src/lib"
+  },
+  "include": ["src/lib/**/*.ts"],
+  "exclude": ["node_modules", "src/lib/**/*.spec.ts"]
+}
