@@ -1,39 +1,55 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { InputWidgetAdapter } from '@golemui/angular';
 import type { InputWidget, WithWidget } from '@golemui/core';
-import { CheckBoxComponent, ErrorComponent } from '@progress/kendo-angular-inputs';
+import type { KendoCheckboxProps } from 'golemui-kendo';
+import { CheckBoxComponent } from '@progress/kendo-angular-inputs';
+import { KendoFieldComponent } from './kendo-field.component';
 
-interface KendoCheckboxProps {
-  kuiSize?: 'small' | 'medium' | 'large';
-}
-
+/**
+ * The label sits beside the box rather than above it, so this widget projects
+ * its own label and leaves the field shell to render only hint and errors.
+ */
 @Component({
   selector: 'app-kendo-checkbox',
-  imports: [CheckBoxComponent, ErrorComponent],
+  imports: [CheckBoxComponent, KendoFieldComponent],
   providers: [InputWidgetAdapter],
   host: {
-    class: 'kendo-widget gui-field',
+    class: 'kendo-widget',
     '[style.flex]': 'adapter.templateData().size',
   },
   template: `
     @let templateData = adapter.templateData();
-    @let errors = templateData.errors ?? [];
 
-    <span class="k-checkbox-wrap">
-      <kendo-checkbox
-        [focusableId]="widget.uid"
-        [checkedState]="templateData.value === true"
-        [disabled]="templateData.disabled ?? false"
-        [size]="templateData.kuiSize ?? 'medium'"
-        (checkedStateChange)="onCheckedChange($event)"
-        (blur)="adapter.onBlur()"
-      ></kendo-checkbox>
-      @if (templateData.label) {
-        <label class="k-checkbox-label" [for]="widget.uid">{{ templateData.label }}</label>
-      }
-    </span>
-    @if (templateData.touched && errors.length) {
-      <kendo-formerror>{{ errors.join(' ') }}</kendo-formerror>
+    <app-kendo-field
+      [hint]="templateData.hint"
+      [errors]="templateData.errors ?? []"
+      [touched]="templateData.touched ?? false"
+    >
+      <span class="k-checkbox-wrap kendo-checkbox__inline">
+        <kendo-checkbox
+          [focusableId]="widget.uid"
+          [checkedState]="templateData.value === true"
+          [disabled]="templateData.disabled ?? false"
+          [size]="templateData.kuiSize ?? 'medium'"
+          (checkedStateChange)="onCheckedChange($event)"
+          (blur)="adapter.onBlur()"
+        ></kendo-checkbox>
+        @if (templateData.label) {
+          <label class="k-checkbox-label" [attr.for]="widget.uid">
+            {{ templateData.label }}
+            @if (templateData.validator?.required) {
+              <span class="k-required">*</span>
+            }
+          </label>
+        }
+      </span>
+    </app-kendo-field>
+  `,
+  styles: `
+    .kendo-checkbox__inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
   `,
 })

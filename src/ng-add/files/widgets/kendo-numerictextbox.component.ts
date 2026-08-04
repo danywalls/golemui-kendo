@@ -1,70 +1,59 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { InputWidgetAdapter } from '@golemui/angular';
 import type { InputWidget, WithWidget } from '@golemui/core';
-import {
-  ErrorComponent,
-  HintComponent,
-  NumericTextBoxComponent,
-} from '@progress/kendo-angular-inputs';
-
-interface KendoNumericInputProps {
-  placeholder?: string;
-  hint?: string;
-  min?: number;
-  max?: number;
-  step?: number;
-  format?: string;
-  spinners?: boolean;
-}
+import type { KendoNumericTextBoxProps } from 'golemui-kendo';
+import { NumericTextBoxComponent } from '@progress/kendo-angular-inputs';
+import { KendoFieldComponent } from './kendo-field.component';
 
 @Component({
   selector: 'app-kendo-numerictextbox',
-  imports: [NumericTextBoxComponent, HintComponent, ErrorComponent],
+  imports: [NumericTextBoxComponent, KendoFieldComponent],
   providers: [InputWidgetAdapter],
   host: {
-    class: 'kendo-widget gui-field',
+    class: 'kendo-widget',
     '[style.flex]': 'adapter.templateData().size',
   },
   template: `
     @let templateData = adapter.templateData();
-    @let errors = templateData.errors ?? [];
 
-    @if (templateData.label) {
-      <label class="k-label" [for]="widget.uid">
-        {{ templateData.label }}
-        @if (templateData.validator?.required) {
-          <span class="k-required">*</span>
-        }
-      </label>
-    }
-    @if (templateData.hint) {
-      <kendo-formhint>{{ templateData.hint }}</kendo-formhint>
-    }
-    <kendo-numerictextbox
-      [focusableId]="widget.uid"
-      [value]="numericValue"
-      [placeholder]="templateData.placeholder ?? ''"
-      [disabled]="templateData.disabled ?? false"
-      [readonly]="templateData.readonly ?? false"
-      [min]="numericMin"
-      [max]="numericMax"
-      [step]="templateData.step ?? 1"
-      [format]="templateData.format ?? 'n0'"
-      [spinners]="templateData.spinners ?? true"
-      (valueChange)="adapter.valueChanged($event)"
-      (blur)="adapter.onBlur()"
-    ></kendo-numerictextbox>
-    @if (templateData.touched && errors.length) {
-      <kendo-formerror>{{ errors.join(' ') }}</kendo-formerror>
-    }
+    <app-kendo-field
+      [label]="templateData.label"
+      [hint]="templateData.hint"
+      [errors]="templateData.errors ?? []"
+      [touched]="templateData.touched ?? false"
+      [required]="!!templateData.validator?.required"
+      [for]="widget.uid"
+    >
+      <kendo-numerictextbox
+        [focusableId]="widget.uid"
+        [value]="numericValue"
+        [min]="numericMin"
+        [max]="numericMax"
+        [placeholder]="templateData.placeholder ?? ''"
+        [disabled]="templateData.disabled ?? false"
+        [readonly]="templateData.readonly ?? false"
+        [size]="templateData.kuiSize ?? 'medium'"
+        [rounded]="templateData.rounded ?? 'medium'"
+        [fillMode]="templateData.fillMode ?? 'solid'"
+        [step]="templateData.step ?? 1"
+        [format]="templateData.format ?? 'n0'"
+        [spinners]="templateData.spinners ?? true"
+        [autoCorrect]="templateData.autoCorrect ?? false"
+        (valueChange)="adapter.valueChanged($event)"
+        (blur)="adapter.onBlur()"
+      ></kendo-numerictextbox>
+    </app-kendo-field>
   `,
 })
 export class KendoNumericInputComponent implements OnInit, OnDestroy, WithWidget {
   widget!: InputWidget<number>;
 
-  protected readonly adapter: InputWidgetAdapter<number, KendoNumericInputProps> =
+  protected readonly adapter: InputWidgetAdapter<number, KendoNumericTextBoxProps> =
     inject(InputWidgetAdapter);
 
+  // Kendo types value/min/max as non-nullable `number`, but all three are
+  // genuinely absent until the user types or the author sets a bound. These
+  // getters keep the runtime `undefined` while satisfying the template types.
   protected get numericValue(): number {
     return this.adapter.templateData().value as number;
   }

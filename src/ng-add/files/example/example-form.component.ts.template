@@ -1,56 +1,63 @@
 import { Component } from '@angular/core';
 import type { FormSubmitEvent } from '@golemui/core';
-import { FormComponent } from '@golemui/gui-angular';
-import type { GuiFormInitConfig } from '@golemui/gui-shared';
-import { gui } from '@golemui/gui-shared';
-import { kendoWidgetLoaders } from '<%= widgetsImportPath %>';
+import { kendo, type KendoFormInitConfig } from 'golemui-kendo';
+import { KendoFormComponent } from '<%= widgetsImportPath %>/kendo-form.component';
 
+// The form is a plain array of `kendo.*` builder calls. Labels and placeholders
+// are derived from the data path unless you set them.
 const exampleFormDef = [
-  gui.inputs.custom('kendo-textbox', 'email', {
-    label: 'Email Address',
-    props: { placeholder: 'you@example.com', clearButton: true },
-    validator: { type: 'string', required: true, format: 'email' },
+  kendo.layouts.row([
+    kendo.inputs.textBox('firstName', { validator: { required: true } }),
+    kendo.inputs.textBox('lastName', { validator: { required: true } }),
+  ]),
+  kendo.inputs.textBox('email', {
+    label: 'Email address',
+    placeholder: 'you@example.com',
+    clearButton: true,
+    validator: { required: true, format: 'email' },
   }),
-  gui.inputs.custom('kendo-passwordbox', 'password', {
-    label: 'Password',
-    props: { hint: 'At least 8 characters' },
-    validator: { type: 'string', required: true, minLength: 8 },
+  kendo.inputs.passwordBox('password', {
+    hint: 'At least 8 characters',
+    validator: { required: true, minLength: 8 },
   }),
-  gui.inputs.custom('kendo-numerictextbox', 'age', {
-    label: 'Age',
-    props: { min: 18, max: 120, step: 1 },
-    validator: { type: 'number', required: true },
+  kendo.inputs.numericTextBox('age', {
+    min: 18,
+    max: 120,
+    validator: { required: true, min: 18 },
   }),
-  gui.inputs.custom('kendo-textarea', 'bio', {
-    label: 'Bio',
-    props: { placeholder: 'Tell us about yourself...', rows: 3 },
+  kendo.inputs.dropDownList('country', {
+    defaultItem: 'Pick a country',
+    options: [
+      { text: 'Spain', value: 'es' },
+      { text: 'Ireland', value: 'ie' },
+      { text: 'Argentina', value: 'ar' },
+    ],
+    validator: { required: true },
   }),
-  gui.inputs.custom('kendo-switch', 'newsletter', {
-    label: 'Subscribe to newsletter',
-    props: { onLabel: 'YES', offLabel: 'NO' },
-  }),
-  gui.inputs.custom('kendo-checkbox', 'rememberMe', {
-    label: 'Remember me on this device',
-  }),
-  gui.actions.custom('kendo-button', {
-    label: 'Submit Form',
-    actionType: 'submit',
-    disabled: { when: '$formIsInvalid' },
-  }),
+  kendo.inputs.datePicker('startDate', { label: 'Start date' }),
+  kendo.inputs.textArea('bio', { placeholder: 'Tell us about yourself...', rows: 3 }),
+  kendo.inputs.switch('newsletter', { label: 'Subscribe to the newsletter', onLabel: 'YES', offLabel: 'NO' }),
+  kendo.inputs.checkbox('rememberMe', { label: 'Remember me on this device' }),
+
+  kendo.actions.submitButton({ label: 'Create account', disabled: { when: '$formIsInvalid' } }),
 ];
+
+// Selectors decorate widgets after the fact, by type, tag, or uid.
+const exampleSelectors = [kendo.selectors.inputs({ override: { kuiSize: 'medium' } })];
 
 @Component({
   selector: 'app-example-form',
-  imports: [FormComponent],
+  imports: [KendoFormComponent],
   template: `
-    <h2>GolemUI + Kendo UI Example Form</h2>
-    <gui-form [config]="config" (formSubmit)="onFormSubmit($event)"></gui-form>
+    <h2>GolemUI + Kendo UI example form</h2>
+    <kendo-form [config]="config" (formSubmit)="onFormSubmit($event)"></kendo-form>
   `,
 })
 export class ExampleFormComponent {
-  protected config: GuiFormInitConfig = {
+  protected config: KendoFormInitConfig = {
     formDef: exampleFormDef,
-    formConfig: { widgetLoaders: kendoWidgetLoaders },
+    formSelectors: exampleSelectors,
+    data: { country: 'es' },
   };
 
   protected onFormSubmit(event: FormSubmitEvent) {

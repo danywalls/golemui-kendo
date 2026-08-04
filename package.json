@@ -2,7 +2,15 @@
   "name": "golemui-kendo",
   "version": "0.0.7",
   "description": "GolemUI + Progress Kendo UI integration for Angular",
-  "main": "./dist/ng-add/index.js",
+  "main": "./dist/lib/index.js",
+  "types": "./dist/lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/lib/index.d.ts",
+      "default": "./dist/lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "schematics": "./collection.json",
   "keywords": [
     "angular",
@@ -35,24 +43,60 @@
     "LICENSE"
   ],
   "ng-add": {
-    "save": "devDependencies"
+    "save": "dependencies"
   },
   "peerDependencies": {
     "@angular/cli": "^20.0.0 || ^21.0.0 || ^22.0.0",
+    "@golemui/core": ">=1.2.0",
+    "@golemui/dx": ">=1.2.0",
+    "@golemui/gui-validators": ">=1.2.0",
     "@schematics/angular": "^20.0.0 || ^21.0.0 || ^22.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@angular/cli": {
+      "optional": true
+    },
+    "@schematics/angular": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@angular-devkit/core": "^20.0.0",
     "@angular-devkit/schematics": "^20.0.0",
+    "@angular/animations": "^20.3.9",
     "@angular/cli": "^20.3.32",
+    "@angular/common": "^20.3.9",
+    "@angular/core": "^20.3.9",
+    "@angular/forms": "^20.3.9",
+    "@angular/platform-browser": "^20.3.9",
+    "@golemui/angular": "^1.2.0",
+    "@golemui/core": "^1.2.0",
+    "@golemui/dx": "^1.2.0",
+    "@golemui/gui-validators": "^1.2.0",
+    "@progress/kendo-angular-buttons": "^24.2.2",
+    "@progress/kendo-angular-dateinputs": "^24.2.2",
+    "@progress/kendo-angular-dropdowns": "^24.2.2",
+    "@progress/kendo-angular-inputs": "^24.2.2",
     "@schematics/angular": "^20.3.32",
+    "@standard-schema/spec": "^1.1.0",
     "@types/node": "^22.0.0",
+    "rxjs": "~7.8.0",
+    "subscript": "^10.7.0",
+    "ts.data.json": "^4.1.0",
     "typescript": "~5.9.0",
-    "vitest": "^3.0.0"
+    "vitest": "^3.0.0",
+    "zod": "^4.4.3"
   },
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.json && cp -r src/ng-add/files dist/ng-add/ && cp src/ng-add/schema.json dist/ng-add/",
+    "link:golemui": "node scripts/link-golemui.mjs",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && npm run build:lib && npm run build:schematics",
+    "build:lib": "tsc -p tsconfig.lib.json && node scripts/write-module-type.mjs",
+    "build:schematics": "tsc -p tsconfig.schematics.json && cp -r src/ng-add/files dist/ng-add/ && cp src/ng-add/schema.json dist/ng-add/",
+    "typecheck": "tsc -p tsconfig.json",
+    "pretest": "npm run build:schematics",
     "test": "vitest run",
-    "prepublishOnly": "npm run build && npm test"
+    "demo": "npm --prefix demo start",
+    "prepublishOnly": "npm run build && npm run typecheck && npm test"
   }
 }
