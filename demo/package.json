@@ -11,14 +11,14 @@
     "build": "ng build"
   },
   "dependencies": {
-    "@angular/animations": "20.3.9",
-    "@angular/common": "20.3.9",
-    "@angular/compiler": "20.3.9",
-    "@angular/core": "20.3.9",
-    "@angular/forms": "20.3.9",
-    "@angular/localize": "20.3.9",
-    "@angular/platform-browser": "20.3.9",
-    "@angular/router": "20.3.9",
+    "@angular/animations": "22.1.0",
+    "@angular/common": "22.1.0",
+    "@angular/compiler": "22.1.0",
+    "@angular/core": "22.1.0",
+    "@angular/forms": "22.1.0",
+    "@angular/localize": "22.1.0",
+    "@angular/platform-browser": "22.1.0",
+    "@angular/router": "22.1.0",
     "@golemui/angular": "1.2.0",
     "@golemui/core": "1.2.0",
     "@golemui/dx": "1.2.0",
@@ -32,9 +32,9 @@
     "tslib": "2.8.1"
   },
   "devDependencies": {
-    "@angular/build": "20.3.9",
-    "@angular/cli": "20.3.9",
-    "@angular/compiler-cli": "20.3.9",
+    "@angular/build": "22.1.2",
+    "@angular/cli": "20.3.32",
+    "@angular/compiler-cli": "22.1.0",
     "typescript": "5.9.3"
   }
 }
