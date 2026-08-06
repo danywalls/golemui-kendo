@@ -34,6 +34,7 @@ export type {
   KendoFillMode,
   KendoFlexProps,
   KendoHintProps,
+  KendoInputAppearanceProps,
   KendoNumericTextBoxProps,
   KendoOption,
   KendoPasswordBoxProps,
@@ -44,6 +45,7 @@ export type {
   KendoSwitchProps,
   KendoTextAreaProps,
   KendoTextBoxProps,
+  KendoTextInputProps,
   KendoThemeColor,
 } from './widget-props';
 

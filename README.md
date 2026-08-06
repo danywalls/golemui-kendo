@@ -140,6 +140,22 @@ export class LoginFormComponent {
 
 See [docs/architecture.md](docs/architecture.md) for how the set is wired together, and the [GolemUI widget set docs](https://golemui.com/dx/extending/widget-sets/overview/) for the underlying API.
 
+### Extending the catalog
+
+The prop types behind every built-in widget are exported from `golemui-kendo`, so a custom widget decorator stays consistent with the built-ins:
+
+- `KendoHintProps` — a Kendo form hint rendered under the control
+- `KendoInputAppearanceProps` — the `kuiSize` / `rounded` / `fillMode` appearance trio shared by most inputs
+- `KendoTextInputProps` — the text input extras (`placeholder`, `clearButton`, `maxlength`, `title`)
+
+```ts
+import type { KendoHintProps, KendoInputAppearanceProps } from 'golemui-kendo';
+
+interface MyCustomInputProps extends KendoHintProps, KendoInputAppearanceProps {
+  // custom props...
+}
+```
+
 ---
 
 ## 🕹️ Demo

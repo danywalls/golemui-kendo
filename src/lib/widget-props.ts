@@ -34,41 +34,40 @@ export interface KendoHintProps {
   hint?: string;
 }
 
-export interface KendoTextBoxProps extends KendoHintProps {
-  placeholder?: string;
+/** The `kuiSize`/`rounded`/`fillMode` appearance trio shared by most Kendo inputs. */
+export interface KendoInputAppearanceProps {
   kuiSize?: KendoSize;
   rounded?: KendoRounded;
   fillMode?: KendoFillMode;
+}
+
+/** Props shared by single-line text inputs (textBox, passwordBox). */
+export interface KendoTextInputProps {
+  placeholder?: string;
   clearButton?: boolean;
   maxlength?: number;
   title?: string;
 }
 
-export interface KendoPasswordBoxProps extends KendoHintProps {
-  placeholder?: string;
-  kuiSize?: KendoSize;
-  rounded?: KendoRounded;
-  fillMode?: KendoFillMode;
-  clearButton?: boolean;
-  maxlength?: number;
-  title?: string;
-}
+export interface KendoTextBoxProps
+  extends KendoHintProps,
+    KendoInputAppearanceProps,
+    KendoTextInputProps {}
 
-export interface KendoTextAreaProps extends KendoHintProps {
+export interface KendoPasswordBoxProps
+  extends KendoHintProps,
+    KendoInputAppearanceProps,
+    KendoTextInputProps {}
+
+export interface KendoTextAreaProps extends KendoHintProps, KendoInputAppearanceProps {
   placeholder?: string;
-  kuiSize?: KendoSize;
-  rounded?: KendoRounded;
-  fillMode?: KendoFillMode;
   rows?: number;
   resizable?: 'none' | 'both' | 'horizontal' | 'vertical' | 'auto';
   maxlength?: number;
 }
 
-export interface KendoNumericTextBoxProps extends KendoHintProps {
+export interface KendoNumericTextBoxProps extends KendoHintProps, KendoInputAppearanceProps {
   placeholder?: string;
-  kuiSize?: KendoSize;
-  rounded?: KendoRounded;
-  fillMode?: KendoFillMode;
   min?: number;
   max?: number;
   step?: number;
@@ -95,17 +94,16 @@ export interface KendoRadioGroupProps<TValue = unknown> extends KendoHintProps {
   kuiSize?: KendoSize;
 }
 
-export interface KendoDropDownListProps<TValue = unknown> extends KendoHintProps {
+export interface KendoDropDownListProps<TValue = unknown>
+  extends KendoHintProps,
+    KendoInputAppearanceProps {
   options?: KendoOption<TValue>[];
   /** Placeholder entry shown when nothing is selected. */
   defaultItem?: string;
   filterable?: boolean;
-  kuiSize?: KendoSize;
-  rounded?: KendoRounded;
-  fillMode?: KendoFillMode;
 }
 
-export interface KendoDatePickerProps extends KendoHintProps {
+export interface KendoDatePickerProps extends KendoHintProps, KendoInputAppearanceProps {
   placeholder?: string;
   /** A Kendo date format string, e.g. 'dd/MM/yyyy'. */
   format?: string;
@@ -114,9 +112,6 @@ export interface KendoDatePickerProps extends KendoHintProps {
   /** ISO date string, e.g. '2030-12-31'. */
   max?: string;
   weekNumber?: boolean;
-  kuiSize?: KendoSize;
-  rounded?: KendoRounded;
-  fillMode?: KendoFillMode;
 }
 
 export interface KendoButtonProps {
