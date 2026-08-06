@@ -97,12 +97,35 @@ describe('ng-add schematic', () => {
     expect(runner.tasks.some((task) => task.name === 'node-package')).toBe(true);
   });
 
+  it('should schedule license activation after package installation', async () => {
+    await runner.runSchematic('ng-add', { kendoLicense: true }, appTree);
+    const installTask = runner.tasks.find((task) => task.name === 'node-package');
+    const licenseTask = runner.tasks.find((task) => task.name === 'run-schematic');
+
+    expect(installTask).toBeDefined();
+    expect(licenseTask).toBeDefined();
+    expect(runner.tasks.map((task) => task.name)).toEqual(['node-package', 'run-schematic']);
+  });
+
   it('should add the Kendo theme to angular.json styles', async () => {
     const tree = await runner.runSchematic('ng-add', { skipExample: true }, appTree);
     const content = JSON.parse(tree.readContent('/angular.json'));
     const styles = content.projects['test-app'].architect.build.options.styles as string[];
 
     expect(styles).toContain('@progress/kendo-theme-default/dist/all.css');
+  });
+
+  it('should not duplicate the Kendo theme when styles use object entries', async () => {
+    const content = JSON.parse(appTree.readContent('/angular.json'));
+    content.projects['test-app'].architect.build.options.styles = [
+      { input: '@progress/kendo-theme-default/dist/all.css', bundleName: 'kendo' },
+    ];
+    appTree.overwrite('/angular.json', JSON.stringify(content));
+
+    const tree = await runner.runSchematic('ng-add', { skipExample: true }, appTree);
+    const styles = JSON.parse(tree.readContent('/angular.json')).projects['test-app'].architect.build.options.styles;
+
+    expect(styles).toHaveLength(1);
   });
 
   // The old schematic added a stylesheet from a package it never installed.
@@ -178,6 +201,24 @@ describe('ng-add schematic', () => {
 
     expect(packageJson.dependencies['@angular/localize']).toBe('^22.1.0');
     expect(packageJson.dependencies['@angular/animations']).toBe('^22.1.0');
+  });
+
+  it('should not duplicate packages already declared in devDependencies', async () => {
+    const packageJson = JSON.parse(appTree.readContent('/package.json'));
+    packageJson.devDependencies = {
+      '@angular/animations': '^20.3.9',
+      '@angular/localize': '^20.3.9',
+      '@progress/kendo-theme-default': '^14.0.0',
+    };
+    appTree.overwrite('/package.json', JSON.stringify(packageJson));
+
+    const tree = await runner.runSchematic('ng-add', { kendoLicense: true }, appTree);
+    const result = JSON.parse(tree.readContent('/package.json'));
+
+    expect(result.dependencies['@angular/animations']).toBeUndefined();
+    expect(result.dependencies['@angular/localize']).toBeUndefined();
+    expect(result.dependencies['@progress/kendo-theme-default']).toBeUndefined();
+    expect(result.devDependencies['@progress/kendo-theme-default']).toBe('^14.0.0');
   });
 
   it('should add @angular/localize/init to array-shaped build polyfills', async () => {

@@ -5,6 +5,10 @@
       "description": "Adds GolemUI + Kendo UI to your project",
       "factory": "./dist/ng-add/index#ngAdd",
       "schema": "./dist/ng-add/schema.json"
+    },
+    "activate-license": {
+      "description": "Activates the Kendo UI for Angular license after package installation",
+      "factory": "./dist/ng-add/index#activateLicense"
     }
   }
 }

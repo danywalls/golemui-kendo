@@ -1,5 +1,5 @@
 import { Rule, SchematicContext, Tree, apply, url, move, mergeWith, chain, applyTemplates } from '@angular-devkit/schematics';
-import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
+import { NodePackageInstallTask, RunSchematicTask } from '@angular-devkit/schematics/tasks';
 import { spawnSync } from 'child_process';
 import * as path from 'path';
 import type { Schema } from './schema';
@@ -50,8 +50,11 @@ function addPackageJsonDependencies(tree: Tree, kendoLicense: boolean): void {
     packageJson.dependencies = {};
   }
 
+  const hasPackage = (packageName: string): boolean =>
+    Boolean(packageJson.dependencies?.[packageName] ?? packageJson.devDependencies?.[packageName]);
+
   for (const [pkg, version] of Object.entries(KENDO_DEPENDENCIES)) {
-    if (!packageJson.dependencies[pkg]) {
+    if (!hasPackage(pkg)) {
       packageJson.dependencies[pkg] = version;
     }
   }
@@ -61,16 +64,16 @@ function addPackageJsonDependencies(tree: Tree, kendoLicense: boolean): void {
   // than the installed @angular/common, which fails to resolve.
   const angularVersion = getAngularVersionString(tree) ?? ANGULAR_FALLBACK_VERSION;
 
-  if (!packageJson.dependencies['@angular/localize']) {
+  if (!hasPackage('@angular/localize')) {
     packageJson.dependencies['@angular/localize'] = angularVersion;
   }
 
   // Kendo's popup-based widgets (dropDownList, datePicker) inject AnimationBuilder.
-  if (!packageJson.dependencies['@angular/animations']) {
+  if (!hasPackage('@angular/animations')) {
     packageJson.dependencies['@angular/animations'] = angularVersion;
   }
 
-  if (kendoLicense && !packageJson.dependencies[KENDO_LICENSING]) {
+  if (kendoLicense && !hasPackage(KENDO_LICENSING)) {
     packageJson.dependencies[KENDO_LICENSING] = KENDO_LICENSING_VERSION;
   }
 
@@ -92,8 +95,10 @@ function addStyles(angularJson: Record<string, unknown>, projectName: string): v
   const options = getBuildOptions(angularJson, projectName);
   if (!options) return;
 
-  const styles = (options['styles'] as string[]) ?? [];
-  const existing = new Set(styles);
+  const styles = Array.isArray(options['styles']) ? options['styles'] : [];
+  const existing = new Set(
+    styles.map((style) => (typeof style === 'string' ? style : (style as Record<string, unknown>)?.['input'])),
+  );
   for (const style of KENDO_STYLES) {
     if (!existing.has(style)) {
       styles.push(style);
@@ -137,15 +142,34 @@ function activateKendoLicense(context: SchematicContext): void {
   for (const [cli, action] of commands) {
     try {
       const result = spawnSync('npx', [cli, action], { stdio: 'inherit', shell: process.platform === 'win32' });
-      if (result.status !== 0) {
-        context.logger.warn(`"npx ${cli} ${action}" exited with code ${result.status}.`);
+      if (result.error) {
+        context.logger.warn(`Could not run "npx ${cli} ${action}": ${result.error.message}`);
+        context.logger.warn('Run it manually after install: npx kendo-ui-license refresh && npx kendo-ui-license activate');
+        return;
       }
-    } catch (error) {
+      if (result.status !== 0) {
+        context.logger.warn(`"npx ${cli} ${action}" exited with code ${result.status ?? 'unknown'}.`);
+        context.logger.warn('Run it manually after install: npx kendo-ui-license refresh && npx kendo-ui-license activate');
+        return;
+      }
+    } catch {
       context.logger.warn(`Could not run "npx ${cli} ${action}" automatically.`);
       context.logger.warn('Run it manually after install: npx kendo-ui-license refresh && npx kendo-ui-license activate');
       return;
     }
   }
+}
+
+export function activateLicense(): Rule {
+  return (tree: Tree, context: SchematicContext) => {
+    if (process.stdin.isTTY) {
+      activateKendoLicense(context);
+    } else {
+      context.logger.info('Kendo license activation skipped (non-interactive terminal).');
+      context.logger.info('Run manually after install: npx kendo-ui-license refresh && npx kendo-ui-license activate');
+    }
+    return tree;
+  };
 }
 
 export function ngAdd(options: Schema): Rule {
@@ -179,19 +203,14 @@ export function ngAdd(options: Schema): Rule {
     addPackageJsonDependencies(tree, !!options.kendoLicense);
 
     context.logger.info('Installing packages...');
-    context.addTask(new NodePackageInstallTask());
+    const installTask = context.addTask(new NodePackageInstallTask());
 
     addStyles(angularJson, projectName);
     addLocalizePolyfill(angularJson, projectName);
     tree.overwrite(angularJsonPath, JSON.stringify(angularJson, null, 2));
 
     if (options.kendoLicense) {
-      if (process.stdin.isTTY) {
-        activateKendoLicense(context);
-      } else {
-        context.logger.info('Kendo license activation skipped (non-interactive terminal).');
-        context.logger.info('Run manually after install: npx kendo-ui-license refresh && npx kendo-ui-license activate');
-      }
+      context.addTask(new RunSchematicTask('activate-license', {}), [installTask]);
     } else {
       context.logger.warn('Kendo UI for Angular requires a commercial license for production use. Run "ng add golemui-kendo --kendoLicense" to install and activate one.');
     }
